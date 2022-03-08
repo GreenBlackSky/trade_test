@@ -11,6 +11,6 @@ while True:
         print("No brokers")
         sleep(5)
  
-while len(consumer.topics()) != 100:
+while not consumer.topics():
     print("Topics not ready")
     sleep(5)

@@ -6,7 +6,7 @@ python events source +
 
 postgresql consumer logs events
 
-pgadmin
+pgadmin +
 
 source fetch events from bd on start
 
@@ -27,3 +27,7 @@ data loads (and frees) by chanks
 prometheus
 
 graphana
+
+adding and removeing tickers on the fly ?
+
+configs in env
