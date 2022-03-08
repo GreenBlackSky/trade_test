@@ -1,0 +1,1 @@
+for ticker in ticker_0{1..9} ticker_{10..99}; do kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic ${ticker} --replication-factor 1 --partitions 1; done
