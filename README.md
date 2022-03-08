@@ -2,19 +2,21 @@ kafka +
 
 kafka ui +
 
-python events source
+python events source + 
 
 postgresql consumer logs events
 
 pgadmin
 
+source fetch events from bd on start
+
 fastapi consumer recieves events and brodcasts em through open websockets
+
+fastapi consumer fetch events from postgres
 
 flutter recieve values through websocket
 
-flutter get older values on demand
-
-fastapi get them with sqlalchemy
+flutter get older values on from fastapi
 
 flutter can just show events or be in online mode
 

@@ -11,6 +11,9 @@ RUN apt-get update && \
 COPY requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 
+COPY run.sh /app/run.sh
+RUN chmod +x /app/run.sh
+
 # COPY ./src /app/app
 
-CMD python app/main.py worker
+CMD ./run.sh

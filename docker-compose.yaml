@@ -25,18 +25,6 @@ services:
     build: ./init_kafka/
     depends_on:
       - kafka
-    # image: confluentinc/cp-kafka:6.1.1
-    # entrypoint: [ '/bin/sh', '-c' ]
-    # command: |
-    #   for i in {1..99}; do \
-    #       kafka-topics \
-    #           --bootstrap-server kafka:29092 \
-    #           --create \
-    #           --if-not-exists \
-    #           --topic ticker_${i} \
-    #           --replication-factor 1 \
-    #           --partitions 1 \
-    #   done;
 
   kafdrop:
     image: obsidiandynamics/kafdrop:latest

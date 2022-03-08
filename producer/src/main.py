@@ -1,4 +1,3 @@
-from cmath import log
 from time import sleep
 from json import dumps
 from random import random
@@ -16,7 +15,9 @@ producer = KafkaProducer(
     value_serializer=lambda x: dumps(x).encode("utf-8"),
 )
 
+
 while True:
     for i in range(100):
         producer.send(f"ticker_{i:02d}", value=generate_movement())
+    print("updated")
     sleep(1)
