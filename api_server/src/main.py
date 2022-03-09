@@ -11,9 +11,9 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.websocket("/update")
+@app.websocket("/update/")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     while True:
-        websocket.send_json({"value": random()})
+        await websocket.send_json({"value": random()})
         await sleep(1)

@@ -14,6 +14,6 @@ RUN pip install -r requirements.txt
 COPY run.sh /app/run.sh
 RUN chmod +x /app/run.sh
 
-# COPY src /app/app
+# COPY ./src /app/app
 
 CMD ./run.sh
