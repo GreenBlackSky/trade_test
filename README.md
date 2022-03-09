@@ -4,7 +4,7 @@ kafka ui +
 
 python events source + 
 
-postgresql consumer logs events
+postgresql consumer logs events +
 
 pgadmin +
 
@@ -31,3 +31,11 @@ graphana
 adding and removeing tickers on the fly ?
 
 configs in env
+
+use common module
+
+copy code in Dockerfile
+
+documentation
+
+logging

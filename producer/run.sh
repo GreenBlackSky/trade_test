@@ -1,3 +1,8 @@
-python app/check_ready.py
+until nc -z ${POSTGRES_HOST} ${POSTGRES_PORT}; do
+    echo "$(date) - waiting for postgres at ${POSTGRES_HOST} ${POSTGRES_PORT}... "
+    sleep 2
+done
 
-python app/main.py worker
+python -m app.check_ready
+
+python -m app.main worker

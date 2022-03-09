@@ -1,9 +1,12 @@
 import datetime as dt
+from functools import lru_cache
 import json
 from random import random
 from time import sleep
 
 from kafka import KafkaProducer
+
+from .db_handler import get_last_record
 
 
 def generate_movement():
@@ -11,8 +14,23 @@ def generate_movement():
     return movement
 
 
+@lru_cache
+def get_resource_names():
+    return {f"ticker_{i:02d}" for i in range(100)}
+
+
+def start_values():
+    return {name: 0 for name in get_resource_names()}
+
+
 def fetch_current_values():
-    return {f"ticker_{i:02d}": 0 for i in range(100)}
+    ret = {}
+    for name in get_resource_names():
+        if not (record := get_last_record(name)):
+            return None
+        ret[name] = record['value']
+    print("values fetched", ret)
+    return ret
 
 
 def get_first_updates(values):
@@ -29,6 +47,7 @@ def update_values(values: dict[str, int]):
     for name, value in values.items():
         values[name] = value + generate_movement()
         update.append({"name": name, "value": values[name], "time": timestamp})
+        print("updated:", update[-1])
     return update
 
 
@@ -42,11 +61,12 @@ if __name__ == "__main__":
         value_serializer=lambda x: json.dumps(x).encode("utf-8"),
     )
 
-    values = fetch_current_values()
-    send_values(producer, get_first_updates(values))
+    if not (values := fetch_current_values()):
+        values = start_values()
+        send_values(producer, get_first_updates(values))
 
     while True:
         update = update_values(values)
         send_values(producer, update)
-        print("updated")
+        print("sent", dt.datetime.now())
         sleep(1)
