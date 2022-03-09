@@ -31,3 +31,4 @@ graphana
 adding and removeing tickers on the fly ?
 
 configs in env
+ hmmm
