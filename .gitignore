@@ -1,2 +1,3 @@
 menv*
 db/postgres_data*
+*__pycache__

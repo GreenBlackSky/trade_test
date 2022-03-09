@@ -1,5 +1,5 @@
 import datetime as dt
-from json import dumps
+import json
 from random import random
 from time import sleep
 
@@ -18,7 +18,7 @@ def fetch_current_values():
 def get_first_updates(values):
     timestamp = dt.datetime.now().timestamp()
     return [
-        {'name': name, value: values[name], 'time': timestamp}
+        {"name": name, value: values[name], "time": timestamp}
         for name, value in values.items()
     ]
 
@@ -28,18 +28,18 @@ def update_values(values: dict[str, int]):
     timestamp = dt.datetime.now().timestamp()
     for name, value in values.items():
         values[name] = value + generate_movement()
-        update.append({'name': name, value: values[name], 'time': timestamp})
+        update.append({"name": name, "value": values[name], "time": timestamp})
     return update
 
 
 def send_values(producer: KafkaProducer, values: dict[str, int]):
-    producer.send(f"tickers", value=values)
+    producer.send("tickers", value=values)
 
 
 if __name__ == "__main__":
     producer = KafkaProducer(
         bootstrap_servers=["kafka:29092"],
-        value_serializer=lambda x: dumps(x).encode("utf-8"),
+        value_serializer=lambda x: json.dumps(x).encode("utf-8"),
     )
 
     values = fetch_current_values()
