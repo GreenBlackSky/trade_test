@@ -1,5 +1,5 @@
 menv*
-db/postgres_data*
+postgres/postgres_data*
 *__pycache__
 .mypy_cache*
 .vscode*

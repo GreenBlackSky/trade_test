@@ -8,7 +8,7 @@ postgresql consumer logs events +
 
 pgadmin +
 
-source fetch events from bd on start
+source fetch events from bd on start +
 
 fastapi consumer recieves events and brodcasts em through open websockets
 

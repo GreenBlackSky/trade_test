@@ -35,13 +35,13 @@ services:
     environment:
       KAFKA_BROKERCONNECT: kafka:29092
 
-  db:
+  postgres:
     image: postgres
     # ports:
     #   - 5432:5432
     volumes:
-      - ./db/postgres_data:/var/lib/postgresql/data/
-      - ./db/schema:/docker-entrypoint-initdb.d/
+      - ./postgres/postgres_data:/var/lib/postgresql/data/
+      - ./postgres/schema:/docker-entrypoint-initdb.d/
     env_file:
       - config.env
 
@@ -52,47 +52,49 @@ services:
     ports:
       - "5050:80"
     links:
-      - "db:pgsql-server"
+      - "postgres:pgsql-server"
 
   producer:
     build: ./producer/
     volumes:
       - ./producer/src:/app/app
     depends_on:
+      - postgres
       - kafka
     env_file:
       - config.env
 
-  db_handler:
-    build: ./db_handler/
+  kafka_postgres_bridge:
+    build: ./kafka_postgres_bridge/
     volumes:
-      - ./db_handler/src:/app/app
+      - ./kafka_postgres_bridge/src:/app/app
     depends_on:
+      - postgres
       - kafka
     env_file:
       - config.env
 
-  # backend:
-  #   build: ./backend/
-  #   volumes:
-  #     - ./backend/src:/app/app
-  #   ports:
-  #     - 80:80
-  #   depends_on:
-  #     - db
-  #   env_file:
-  #     - config.env
+  api_server:
+    build: ./api_server/
+    volumes:
+      - ./api_server/src:/app/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+      - kafka
+    env_file:
+      - config.env
   
-  # frontend:
-  #   build: ./frontend/
-  #   volumes:
-  #     - ./frontend/src:/app/app
-  #   ports:
-  #     - 80:80
-  #   depends_on:
-  #     - db
-  #   env_file:
-  #     - config.env
+  frontend:
+    build: ./frontend/
+    ports:
+      - 5000:5000
+    depends_on:
+      - postgres
+      - kafka
+    # env_file:
+    #   - config.env
 
   # prometheus:
   #   image: prom/prometheus:latest

@@ -22,9 +22,13 @@ RUN flutter config --enable-web
 
 # Copy files to container and build
 RUN mkdir /app/
-COPY . /app/
+COPY ./app/ /app/
 WORKDIR /app/
 RUN flutter build web
 
 # Record the exposed port
 EXPOSE 5000
+
+RUN ["chmod", "+x", "/app/server/server.sh"]
+
+ENTRYPOINT [ "/app/server/server.sh"]
