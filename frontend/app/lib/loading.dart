@@ -22,15 +22,14 @@ class _LoadingScreenState extends State<LoadingScreen> {
   }
 
   Future<void> fetchOlderData() async {
-    var end = DateTime.now();
+    var end = DateTime.now().toUtc();
     var start = end.subtract(const Duration(minutes: 5));
-    var uri = Uri(
-        host: 'http://localhost:8000/history/',
-        queryParameters: (<String, String>{
-          "start": start.toIso8601String(),
-          "end": end.toIso8601String()
-        }));
-    http.Response response = await http.get(uri);
+    var uri = Uri.http('localhost:8000', '/history', <String, String>{
+      "start": start.toIso8601String(),
+      "end": end.toIso8601String()
+    });
+    http.Response response =
+        await http.get(uri, headers: {"Access-Control-Allow-Origin": "*"});
     var responseData = jsonDecode(response.body);
     log(responseData);
     Navigator.of(context).pushReplacementNamed("/chart");

@@ -12,7 +12,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session as OrmSession
 
 
 connection_string = "postgresql://{}:{}@{}:{}/{}".format(
@@ -27,7 +27,7 @@ Base = declarative_base()
 Session = sessionmaker(bind=engine)
 
 
-class Record(Base):
+class Record(Base):  # type: ignore
 
     __tablename__ = "records"
 
@@ -39,7 +39,7 @@ class Record(Base):
     def to_dict(self):
         return {
             "name": self.name,
-            "time": self.time,
+            "time": self.time.timestamp(),
             "value": self.value,
         }
 
@@ -51,14 +51,24 @@ def write_record(name: str, time: dt.datetime, value: int):
             session.add(record)
 
 
-def get_last_record(name):
+def get_last_record(name: str):
+    session: OrmSession
     with Session() as session:
         last_time = session.execute(
             select(func.max(Record.time)).where(Record.name == name)
         ).scalar()
-        record = session.execute(
+        record: Record = session.execute(
             select(Record).where(Record.name == name).where(Record.time == last_time)
         ).scalar()
     if record:
-        return record.to_dict()
+        return record
     return None
+
+
+def get_records(start: dt.datetime, end: dt.datetime) -> list[dict]:
+    session: OrmSession
+    with Session() as session:
+        records = session.execute(
+            select(Record).where(Record.time >= start).where(Record.time < end)
+        ).all()
+    return [record.to_dict() for (record,) in records]

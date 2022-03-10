@@ -27,7 +27,7 @@ Base = declarative_base()
 Session = sessionmaker(bind=engine)
 
 
-class Record(Base):
+class Record(Base):  # type: ignore
 
     __tablename__ = "records"
 
@@ -39,7 +39,7 @@ class Record(Base):
     def to_dict(self):
         return {
             "name": self.name,
-            "time": self.time,
+            "time": self.time.timestamp(),
             "value": self.value,
         }
 
@@ -62,7 +62,7 @@ def get_last_record(name: str):
             select(Record).where(Record.name == name).where(Record.time == last_time)
         ).scalar()
     if record:
-        return record.to_dict()
+        return record
     return None
 
 

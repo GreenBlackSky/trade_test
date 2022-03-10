@@ -28,7 +28,7 @@ def fetch_current_values():
     for name in get_resource_names():
         if not (record := get_last_record(name)):
             return None
-        ret[name] = record['value']
+        ret[name] = record.value
     print("values fetched", ret)
     return ret
 

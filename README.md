@@ -18,7 +18,7 @@ flutter recieve values through websocket +
 
 fastapi consumer recieves events
 
-flutter get older values on from fastapi
+flutter get older values on from fastapi +
 
 flutter can just show events or be in online mode
 
