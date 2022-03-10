@@ -1,14 +1,18 @@
-from asyncio import sleep
+import datetime as dt
 from random import random
+
+from asyncio import sleep
 from fastapi import FastAPI, WebSocket
+
+from .db_handler import get_records
 
 
 app = FastAPI()
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+@app.get("/history/")
+async def root(start: dt.datetime, end: dt.datetime):
+    return get_records(start, end)
 
 
 @app.websocket("/update/")

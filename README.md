@@ -10,11 +10,13 @@ pgadmin +
 
 source fetch events from bd on start +
 
-fastapi consumer recieves events and brodcasts em through open websockets
+fastapi consumer fetch events from postgres +
 
-fastapi consumer fetch events from postgres
+fastapi consumer brodcasts em through open websockets +
 
-flutter recieve values through websocket
+flutter recieve values through websocket +
+
+fastapi consumer recieves events
 
 flutter get older values on from fastapi
 
