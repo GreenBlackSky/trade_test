@@ -1,10 +1,11 @@
+from asyncio import get_event_loop, create_task
 import datetime as dt
 import json
-from random import random
+from typing import Any
 
-from asyncio import sleep
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from websockets.exceptions import ConnectionClosedOK
+from aiokafka import AIOKafkaConsumer
+from fastapi import FastAPI, WebSocket
+from starlette.endpoints import WebSocketEndpoint
 from fastapi.middleware.cors import CORSMiddleware
 
 from .db_handler import get_records
@@ -20,31 +21,39 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: list[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-
-
-manager = ConnectionManager()
 
 @app.get("/history")
 async def root(start: dt.datetime, end: dt.datetime):
     return json.dumps(get_records(start, end))
 
 
-@app.websocket("/update/")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            await websocket.send_json({"value": random()})
-            await sleep(1)
-    except (WebSocketDisconnect, ConnectionClosedOK) as e:
-        manager.disconnect(websocket)
+@app.websocket_route("/update/")
+class WebsocketConsumer(WebSocketEndpoint):
+    async def on_connect(self, websocket: WebSocket) -> None:
+        await websocket.accept()
+
+        loop = get_event_loop()
+        self.consumer = AIOKafkaConsumer(
+            "tickers",
+            loop=loop,
+            bootstrap_servers=["kafka:29092"],
+            enable_auto_commit=False,
+        )
+        await self.consumer.start()
+        self.consumer_task = create_task(
+            self.send_consumer_message(websocket=websocket)
+        )
+        await self.consumer_task
+
+    async def on_disconnect(self, websocket: WebSocket, close_code: int) -> None:
+        self.consumer_task.cancel()
+        await self.consumer.stop()
+
+    async def on_receive(self, websocket: WebSocket, data: Any) -> None:
+        pass
+
+    async def send_consumer_message(self, websocket: WebSocket) -> None:
+        async for data in self.consumer:
+            for record in json.loads(data.value):
+                print("sending", record)
+                await websocket.send_text(json.dumps(record))

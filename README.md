@@ -16,9 +16,11 @@ fastapi consumer brodcasts em through open websockets +
 
 flutter recieve values through websocket +
 
-fastapi consumer recieves events
+fastapi consumer recieves events +
 
 flutter get older values on from fastapi +
+
+flutter graph
 
 flutter can just show events or be in online mode
 

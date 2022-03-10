@@ -9,7 +9,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "COIN",
+      title: "Tickers",
       initialRoute: '/loading',
       routes: {
         '/chart': (context) => const ChartScreen(),
