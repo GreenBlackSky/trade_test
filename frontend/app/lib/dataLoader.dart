@@ -4,14 +4,14 @@ import 'package:http/http.dart' as http;
 
 import 'storage.dart';
 
-class LoadingScreen extends StatefulWidget {
-  const LoadingScreen({Key? key}) : super(key: key);
+class DataLoader extends StatefulWidget {
+  const DataLoader({Key? key}) : super(key: key);
 
   @override
-  State<LoadingScreen> createState() => _LoadingScreenState();
+  State<DataLoader> createState() => _DataLoaderState();
 }
 
-class _LoadingScreenState extends State<LoadingScreen> {
+class _DataLoaderState extends State<DataLoader> {
   int timestampFromDateTime(DateTime dateTime) {
     return dateTime.millisecondsSinceEpoch ~/ 1000;
   }
@@ -27,7 +27,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
     var start = end.subtract(const Duration(minutes: 5));
     var uri = Uri.http('localhost:8000', '/history', <String, String>{
       "start": start.toIso8601String(),
-      "end": end.toIso8601String()
+      "end": end.toIso8601String(),
+      "ticker_name": storage.currentTickerName
     });
     http.Response response =
         await http.get(uri, headers: {"Access-Control-Allow-Origin": "*"});

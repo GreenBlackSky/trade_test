@@ -25,21 +25,13 @@ class ChartScreen extends StatefulWidget {
 }
 
 class _ChartScreenState extends State<ChartScreen> {
-  late List<String> names;
-  late String currentTickerName;
-
   final channel = WebSocketChannel.connect(
-    Uri.parse('ws://localhost:8000/update/'),
+    Uri.parse('ws://localhost:8000/update/${storage.currentTickerName}'),
   );
-
-  _ChartScreenState() {
-    names = storage.getTickerNames();
-    currentTickerName = names[0];
-  }
 
   Widget buildButton() {
     return DropdownButton<String>(
-      value: currentTickerName,
+      value: storage.currentTickerName,
       icon: const Icon(Icons.arrow_downward),
       elevation: 16,
       style: const TextStyle(color: Colors.deepPurple),
@@ -49,10 +41,12 @@ class _ChartScreenState extends State<ChartScreen> {
       ),
       onChanged: (String? newValue) {
         setState(() {
-          currentTickerName = newValue!;
+          storage.currentTickerName = newValue!;
         });
+        storage.clear();
+        Navigator.of(context).pushReplacementNamed("/loading_data");
       },
-      items: names.map<DropdownMenuItem<String>>((String value) {
+      items: storage.tickerNames.map<DropdownMenuItem<String>>((dynamic value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
@@ -63,7 +57,7 @@ class _ChartScreenState extends State<ChartScreen> {
 
   Widget buildGraph() {
     List<ChartData> chartData = [];
-    for (Map record in storage.getData(currentTickerName)) {
+    for (Map record in storage.data) {
       chartData
           .add(ChartData(dateFromTimestamp(record['time']), record['value']));
     }
@@ -89,9 +83,6 @@ class _ChartScreenState extends State<ChartScreen> {
           tooltipDisplayMode: TrackballDisplayMode.nearestPoint,
           tooltipSettings: InteractiveTooltip(format: 'point.x: point.y'),
           hideDelay: 2000),
-      onSelectionChanged: (selectionArgs) {
-        int index = selectionArgs.pointIndex;
-      },
     );
   }
 

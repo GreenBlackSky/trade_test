@@ -28,13 +28,15 @@ async def get_ticker_names_endpoint():
 
 
 @app.get("/history")
-async def root(start: dt.datetime, end: dt.datetime):
-    return json.dumps(get_records(start, end))
+async def root(start: dt.datetime, end: dt.datetime, ticker_name: str):
+    return json.dumps(get_records(ticker_name, start, end))
 
 
-@app.websocket_route("/update/")
+@app.websocket_route("/update/{ticker_name}")
 class WebsocketConsumer(WebSocketEndpoint):
     async def on_connect(self, websocket: WebSocket) -> None:
+        ticker_name = websocket["path"].split("/")[2]
+
         await websocket.accept()
 
         loop = get_event_loop()
@@ -46,7 +48,7 @@ class WebsocketConsumer(WebSocketEndpoint):
         )
         await self.consumer.start()
         self.consumer_task = create_task(
-            self.send_consumer_message(websocket=websocket)
+            self.send_consumer_message(websocket=websocket, ticker_name=ticker_name)
         )
         await self.consumer_task
 
@@ -57,8 +59,11 @@ class WebsocketConsumer(WebSocketEndpoint):
     async def on_receive(self, websocket: WebSocket, data: Any) -> None:
         pass
 
-    async def send_consumer_message(self, websocket: WebSocket) -> None:
+    async def send_consumer_message(
+        self, websocket: WebSocket, ticker_name: str
+    ) -> None:
         async for data in self.consumer:
             for record in json.loads(data.value):
-                print("sending", record)
-                await websocket.send_text(json.dumps(record))
+                if record["name"] == ticker_name:
+                    print("sending", record)
+                    await websocket.send_text(json.dumps(record))

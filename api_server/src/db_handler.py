@@ -67,11 +67,14 @@ def get_last_record(name: str):
     return None
 
 
-def get_records(start: dt.datetime, end: dt.datetime) -> list[dict]:
+def get_records(ticker_name: str, start: dt.datetime, end: dt.datetime) -> list[dict]:
     session: OrmSession
     with Session() as session:
         records = session.execute(
-            select(Record).where(Record.time >= start).where(Record.time < end)
+            select(Record)
+            .where(Record.name == ticker_name)
+            .where(Record.time >= start)
+            .where(Record.time < end)
         ).all()
     print("sent", len(records))
     return [record.to_dict() for (record,) in records]

@@ -30,13 +30,19 @@ flutter graph online +
 
 async sqlalchemy
 
-frontend gets more events than needed
+BUG frontend gets more events than needed
 
-get tickers list
+BUG sign invertion
 
-ask for specific ticker
+BUG null on switching tickers
+
+get tickers list + 
+
+ask for specific ticker +
 
 flutter choose time
+
+sliding window
 
 prometheus
 
