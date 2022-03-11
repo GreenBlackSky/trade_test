@@ -21,7 +21,6 @@ class DataStorage {
   }
 
   void addData(Map record) {
-    String tickerName = record.remove('name');
     data.add(record);
   }
 

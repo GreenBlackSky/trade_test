@@ -19,15 +19,16 @@ class _DataLoaderState extends State<DataLoader> {
   @override
   void initState() {
     super.initState();
+    storage.clear();
     fetchOlderData();
   }
 
   Future<void> fetchOlderData() async {
-    var end = DateTime.now().toUtc();
-    var start = end.subtract(const Duration(minutes: 5));
+    DateTime periodEnd = DateTime.now().toUtc();
+    DateTime periodStart = periodEnd.subtract(const Duration(minutes: 5));
     var uri = Uri.http('localhost:8000', '/history', <String, String>{
-      "start": start.toIso8601String(),
-      "end": end.toIso8601String(),
+      "start": periodStart.toIso8601String(),
+      "end": periodEnd.toIso8601String(),
       "ticker_name": storage.currentTickerName
     });
     http.Response response =

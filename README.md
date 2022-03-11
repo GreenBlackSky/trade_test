@@ -30,11 +30,15 @@ flutter graph online +
 
 async sqlalchemy
 
-BUG frontend gets more events than needed
+BUG frontend gets more events than needed +
 
 BUG sign invertion
 
-BUG null on switching tickers
+BUG null on switching tickers +
+
+BUG bridge doesnt start on first try (key error value)
+
+BUG bridge fails on restarting producer
 
 get tickers list + 
 

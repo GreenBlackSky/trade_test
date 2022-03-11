@@ -63,8 +63,8 @@ if __name__ == "__main__":
 
     if not (values := fetch_current_values()):
         values = start_values()
-        send_values(producer, get_first_updates(values))
 
+    send_values(producer, get_first_updates(values))
     while True:
         update = update_values(values)
         send_values(producer, update)

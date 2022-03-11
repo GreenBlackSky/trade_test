@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'dataLoader.dart';
-import 'tickerNamesLoader.dart';
+import 'data_loader.dart';
+import 'ticker_names_loader.dart';
 import 'chart.dart';
 
 void main() => runApp(App());

@@ -10,6 +10,10 @@ DateTime dateFromTimestamp(double timestamp) {
   return DateTime.fromMillisecondsSinceEpoch((timestamp * 1000).round());
 }
 
+int timestampFromDateTime(DateTime dateTime) {
+  return dateTime.millisecondsSinceEpoch ~/ 1000;
+}
+
 class ChartData {
   ChartData(this.x, this.y);
 
@@ -28,8 +32,22 @@ class _ChartScreenState extends State<ChartScreen> {
   final channel = WebSocketChannel.connect(
     Uri.parse('ws://localhost:8000/update/${storage.currentTickerName}'),
   );
+  late ZoomPanBehavior _zoomPanBehavior;
+  late TrackballBehavior _trackballBehavior;
 
-  Widget buildButton() {
+  @override
+  void initState() {
+    _zoomPanBehavior = ZoomPanBehavior(enablePinching: true);
+    _trackballBehavior = TrackballBehavior(
+        enable: true,
+        activationMode: ActivationMode.singleTap,
+        tooltipDisplayMode: TrackballDisplayMode.nearestPoint,
+        tooltipSettings: InteractiveTooltip(format: 'point.x: point.y'),
+        hideDelay: 2000);
+    super.initState();
+  }
+
+  Widget buildChooseTickerButton() {
     return DropdownButton<String>(
       value: storage.currentTickerName,
       icon: const Icon(Icons.arrow_downward),
@@ -40,10 +58,7 @@ class _ChartScreenState extends State<ChartScreen> {
         color: Colors.deepPurpleAccent,
       ),
       onChanged: (String? newValue) {
-        setState(() {
-          storage.currentTickerName = newValue!;
-        });
-        storage.clear();
+        storage.currentTickerName = newValue!;
         Navigator.of(context).pushReplacementNamed("/loading_data");
       },
       items: storage.tickerNames.map<DropdownMenuItem<String>>((dynamic value) {
@@ -64,6 +79,7 @@ class _ChartScreenState extends State<ChartScreen> {
     return SfCartesianChart(
       primaryXAxis: DateTimeAxis(
         intervalType: DateTimeIntervalType.seconds,
+        visibleMinimum: DateTime.now().toUtc().subtract(const Duration(minutes: 5)),
       ),
       series: <ChartSeries<ChartData, DateTime>>[
         LineSeries<ChartData, DateTime>(
@@ -77,12 +93,8 @@ class _ChartScreenState extends State<ChartScreen> {
                 unselectedBorderWidth: 5),
             width: 5)
       ],
-      trackballBehavior: TrackballBehavior(
-          enable: true,
-          activationMode: ActivationMode.singleTap,
-          tooltipDisplayMode: TrackballDisplayMode.nearestPoint,
-          tooltipSettings: InteractiveTooltip(format: 'point.x: point.y'),
-          hideDelay: 2000),
+      zoomPanBehavior: _zoomPanBehavior,
+      trackballBehavior: _trackballBehavior,
     );
   }
 
@@ -95,12 +107,14 @@ class _ChartScreenState extends State<ChartScreen> {
         body: Center(
             child: Column(
           children: [
-            buildButton(),
+            buildChooseTickerButton(),
             Expanded(
               child: StreamBuilder(
                 stream: channel.stream,
                 builder: (context, snapshot) {
-                  storage.addData(jsonDecode(snapshot.data as String));
+                  if (snapshot.data != null) {
+                    storage.addData(jsonDecode(snapshot.data as String));
+                  }
                   return buildGraph();
                 },
               ),
