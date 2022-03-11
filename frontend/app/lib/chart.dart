@@ -37,7 +37,8 @@ class _ChartScreenState extends State<ChartScreen> {
 
   @override
   void initState() {
-    _zoomPanBehavior = ZoomPanBehavior(enablePinching: true);
+    _zoomPanBehavior =
+        ZoomPanBehavior(enablePinching: true, enablePanning: true);
     _trackballBehavior = TrackballBehavior(
         enable: true,
         activationMode: ActivationMode.singleTap,
@@ -79,7 +80,8 @@ class _ChartScreenState extends State<ChartScreen> {
     return SfCartesianChart(
       primaryXAxis: DateTimeAxis(
         intervalType: DateTimeIntervalType.seconds,
-        visibleMinimum: DateTime.now().toUtc().subtract(const Duration(minutes: 5)),
+        visibleMinimum:
+            DateTime.now().toUtc().subtract(const Duration(minutes: 5)),
       ),
       series: <ChartSeries<ChartData, DateTime>>[
         LineSeries<ChartData, DateTime>(
@@ -113,7 +115,10 @@ class _ChartScreenState extends State<ChartScreen> {
                 stream: channel.stream,
                 builder: (context, snapshot) {
                   if (snapshot.data != null) {
-                    storage.addData(jsonDecode(snapshot.data as String));
+                    var data = jsonDecode(snapshot.data as String);
+                    if(data['name'] == storage.currentTickerName) {
+                      storage.addData(data);
+                    }
                   }
                   return buildGraph();
                 },

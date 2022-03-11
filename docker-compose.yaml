@@ -73,6 +73,7 @@ services:
       - kafka
     env_file:
       - config.env
+    restart: always
 
   api_server:
     build: ./api_server/
