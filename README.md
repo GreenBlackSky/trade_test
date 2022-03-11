@@ -20,13 +20,17 @@ fastapi consumer recieves events +
 
 flutter get older values on from fastapi +
 
+flutter storage +
+
+flutter ticker chooser
+
 flutter graph
+
+flutter choose time
 
 flutter can just show events or be in online mode
 
 in offline mode it severs websocket connection
-
-data loads (and frees) by chanks
 
 prometheus
 
