@@ -22,15 +22,13 @@ flutter get older values on from fastapi +
 
 flutter storage +
 
-flutter ticker chooser
+flutter ticker chooser +
 
-flutter graph
+flutter graph + 
+
+flutter graph online
 
 flutter choose time
-
-flutter can just show events or be in online mode
-
-in offline mode it severs websocket connection
 
 prometheus
 

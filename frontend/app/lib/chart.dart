@@ -26,6 +26,13 @@ class _ChartScreenState extends State<ChartScreen> {
   final channel = WebSocketChannel.connect(
     Uri.parse('ws://localhost:8000/update/'),
   );
+    late List<String> names;
+    late String currentTickerName;
+
+  _ChartScreenState() {
+    names = storage.getTickerNames();
+    currentTickerName = names[0];
+  }
 
   // @override
   // Widget build(BuildContext context) {
@@ -42,44 +49,80 @@ class _ChartScreenState extends State<ChartScreen> {
   //     )),
   //   );
 
-  @override
-  Widget build(BuildContext context) {
+Widget buildButton() {
+    return DropdownButton<String>(
+      value: currentTickerName,
+      icon: const Icon(Icons.arrow_downward),
+      elevation: 16,
+      style: const TextStyle(color: Colors.deepPurple),
+      underline: Container(
+        height: 2,
+        color: Colors.deepPurpleAccent,
+      ),
+      onChanged: (String? newValue) {
+        setState(() {
+          currentTickerName = newValue!;
+        });
+      },
+      items: names.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget buildGraph() {
     List<ChartData> chartData = [];
-    for(Map record in storage.getData('ticker_01')){
+    for (Map record in storage.getData(currentTickerName)) {
       chartData
           .add(ChartData(dateFromTimestamp(record['time']), record['value']));
     }
 
+    return SfCartesianChart(
+      primaryXAxis: DateTimeAxis(
+        intervalType: DateTimeIntervalType.seconds,
+      ),
+      series: <ChartSeries<ChartData, DateTime>>[
+        LineSeries<ChartData, DateTime>(
+            dataSource: chartData,
+            xValueMapper: (ChartData val, _) => val.x,
+            yValueMapper: (ChartData val, _) => val.y,
+            selectionBehavior: SelectionBehavior(
+                enable: true,
+                selectedColor: Colors.red,
+                selectedBorderWidth: 5,
+                unselectedBorderWidth: 5),
+            width: 5)
+      ],
+      trackballBehavior: TrackballBehavior(
+          enable: true,
+          activationMode: ActivationMode.singleTap,
+          tooltipDisplayMode: TrackballDisplayMode.nearestPoint,
+          tooltipSettings: InteractiveTooltip(format: 'point.x: point.y'),
+          hideDelay: 2000),
+      onSelectionChanged: (selectionArgs) {
+        int index = selectionArgs.pointIndex;
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Tickers"),
         ),
         body: Center(
-            child: SfCartesianChart(
-          primaryXAxis: DateTimeAxis(
-              intervalType: DateTimeIntervalType.seconds,
-            ),
-          series: <ChartSeries<ChartData, DateTime>>[
-            LineSeries<ChartData, DateTime>(
-                dataSource: chartData,
-                xValueMapper: (ChartData val, _) => val.x,
-                yValueMapper: (ChartData val, _) => val.y,
-                selectionBehavior: SelectionBehavior(
-                    enable: true,
-                    selectedColor: Colors.red,
-                    selectedBorderWidth: 5,
-                    unselectedBorderWidth: 5),
-                width: 5)
+            child: Column(
+          children: [
+            buildButton(),
+            Expanded(child: buildGraph())
           ],
-          trackballBehavior: TrackballBehavior(
-              enable: true,
-              activationMode: ActivationMode.singleTap,
-              tooltipDisplayMode: TrackballDisplayMode.nearestPoint,
-              tooltipSettings: InteractiveTooltip(format: 'point.x: point.y'),
-              hideDelay: 2000),
-          onSelectionChanged: (selectionArgs) {
-            int index = selectionArgs.pointIndex;
-          },
-        )));
+          mainAxisSize: MainAxisSize.max,
+        )
+      )
+    );
   }
 }

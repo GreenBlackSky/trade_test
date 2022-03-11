@@ -37,6 +37,7 @@ dependencies:
   web_socket_channel: ^2.1.0
   http: ^0.13.4
   syncfusion_flutter_charts: ^19.4.55
+  sorted_list: ^1.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,20 +1,31 @@
+import 'package:sorted_list/sorted_list.dart';
+
 class DataStorage {
   Map<String, List> _storage = {};
 
   void addData(Map record) {
-    String name = record.remove('name');
-    if(!_storage.containsKey(name)) {
-      _storage[name] = [];
+    String tickerName = record.remove('name');
+    if (!_storage.containsKey(tickerName)) {
+      _storage[tickerName] = SortedList((a, b) {
+        if (a['time'] > b['time']) {
+          return 1;
+        } else if (a['time'] < b['time']) {
+          return -1;
+        }
+        return 0;
+      });
     }
-    _storage[name]!.add(record);
+    _storage[tickerName]!.add(record);
   }
 
-  Iterable<String> getNames() {
-    return _storage.keys;
+  List<String> getTickerNames() {
+    var ret = _storage.keys.toList();
+    ret.sort();
+    return ret;
   }
 
-  List getData(String name) {
-    return _storage[name]!;
+  List getData(String tickerName) {
+    return _storage[tickerName]!;
   }
 }
 
