@@ -1,3 +1,5 @@
+import "dart:convert";
+
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -23,33 +25,19 @@ class ChartScreen extends StatefulWidget {
 }
 
 class _ChartScreenState extends State<ChartScreen> {
+  late List<String> names;
+  late String currentTickerName;
+
   final channel = WebSocketChannel.connect(
     Uri.parse('ws://localhost:8000/update/'),
   );
-    late List<String> names;
-    late String currentTickerName;
 
   _ChartScreenState() {
     names = storage.getTickerNames();
     currentTickerName = names[0];
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: const Text("Tickers"),
-  //     ),
-  //     body: Center(
-  //         child: StreamBuilder(
-  //       stream: channel.stream,
-  //       builder: (context, snapshot) {
-  //         return Text(snapshot.hasData ? '${snapshot.data}' : '');
-  //       },
-  //     )),
-  //   );
-
-Widget buildButton() {
+  Widget buildButton() {
     return DropdownButton<String>(
       value: currentTickerName,
       icon: const Icon(Icons.arrow_downward),
@@ -79,7 +67,6 @@ Widget buildButton() {
       chartData
           .add(ChartData(dateFromTimestamp(record['time']), record['value']));
     }
-
     return SfCartesianChart(
       primaryXAxis: DateTimeAxis(
         intervalType: DateTimeIntervalType.seconds,
@@ -118,11 +105,17 @@ Widget buildButton() {
             child: Column(
           children: [
             buildButton(),
-            Expanded(child: buildGraph())
+            Expanded(
+              child: StreamBuilder(
+                stream: channel.stream,
+                builder: (context, snapshot) {
+                  storage.addData(jsonDecode(snapshot.data as String));
+                  return buildGraph();
+                },
+              ),
+            ),
           ],
           mainAxisSize: MainAxisSize.max,
-        )
-      )
-    );
+        )));
   }
 }

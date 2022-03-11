@@ -10,6 +10,7 @@ from sqlalchemy import (
     BigInteger,
     select,
     func,
+    distinct,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session as OrmSession
@@ -72,4 +73,14 @@ def get_records(start: dt.datetime, end: dt.datetime) -> list[dict]:
         records = session.execute(
             select(Record).where(Record.time >= start).where(Record.time < end)
         ).all()
+    print("sent", len(records))
     return [record.to_dict() for (record,) in records]
+
+
+def get_ticker_names():
+    session: OrmSession
+    with Session() as session:
+        names = session.execute(select(Record.name).distinct())
+        result = sorted([name for (name,) in names])
+        print(result)
+    return result

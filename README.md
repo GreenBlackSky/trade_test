@@ -26,7 +26,15 @@ flutter ticker chooser +
 
 flutter graph + 
 
-flutter graph online
+flutter graph online +
+
+async sqlalchemy
+
+frontend gets more events than needed
+
+get tickers list
+
+ask for specific ticker
 
 flutter choose time
 

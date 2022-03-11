@@ -8,7 +8,7 @@ from fastapi import FastAPI, WebSocket
 from starlette.endpoints import WebSocketEndpoint
 from fastapi.middleware.cors import CORSMiddleware
 
-from .db_handler import get_records
+from .db_handler import get_records, get_ticker_names
 
 
 app = FastAPI()
@@ -20,6 +20,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/ticker_names")
+async def get_ticker_names_endpoint():
+    return get_ticker_names()
 
 
 @app.get("/history")
