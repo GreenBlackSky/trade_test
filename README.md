@@ -53,8 +53,24 @@ Docker compose maintains 10 containers total.
 
 ![Front end flow](docs/frontend.svg)
 
+User can change current ticker any moment. In that case, `Frontend` will fetch all the older data of new ticker and subscribe to new changes, the same way it does upon starting.
+
+![Front end view](docs/Frontend_view.png)
+
 
 ## Backlog
+
+What wanted to add, but I did not.
+
+* Prometheus for monitoring client connections and data flow in general
+* Graphana as UI for prometheous
+* it would be nice to have some way of navigating records, beside scrolling, like date time input.
+* Frontend should have been working in the live mode and archive mode. And switching between modes should have been seamless. Like, scroll to the max right - get new events and start live mode. Scroll left - switch to archive mode, load data from database.
+* project configuration must be secret. But here I use .env file, which is under version control. NOT SAFE, NOT SAFE AT ALL!
+* some mudules shares almost identical pieces of code. It would be nice to move them into common directory.
+* using `logging` module instead of `print` would be a right thing to do.
+
+## TASKS
 
 * kafka +
 * kafka ui +
@@ -84,6 +100,7 @@ Docker compose maintains 10 containers total.
 * prometheus
 * graphana
 * adding and removeing tickers on the fly ?
+* loading data by chunks
 * configs in env
 * use common module
 * copy code in Dockerfile

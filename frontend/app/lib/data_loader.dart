@@ -25,7 +25,7 @@ class _DataLoaderState extends State<DataLoader> {
 
   Future<void> fetchOlderData() async {
     DateTime periodEnd = DateTime.now().toUtc();
-    DateTime periodStart = periodEnd.subtract(const Duration(minutes: 5));
+    DateTime periodStart = periodEnd.subtract(const Duration(minutes: 15));
     var uri = Uri.http('localhost:8000', '/history', <String, String>{
       "start": periodStart.toIso8601String(),
       "end": periodEnd.toIso8601String(),

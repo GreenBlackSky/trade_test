@@ -85,5 +85,4 @@ def get_ticker_names():
     with Session() as session:
         names = session.execute(select(Record.name).distinct())
         result = sorted([name for (name,) in names])
-        print(result)
     return result

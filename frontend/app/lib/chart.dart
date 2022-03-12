@@ -10,10 +10,6 @@ DateTime dateFromTimestamp(double timestamp) {
   return DateTime.fromMillisecondsSinceEpoch((timestamp * 1000).round());
 }
 
-int timestampFromDateTime(DateTime dateTime) {
-  return dateTime.millisecondsSinceEpoch ~/ 1000;
-}
-
 class ChartData {
   ChartData(this.x, this.y);
 
@@ -32,19 +28,40 @@ class _ChartScreenState extends State<ChartScreen> {
   final channel = WebSocketChannel.connect(
     Uri.parse('ws://localhost:8000/update/${storage.currentTickerName}'),
   );
+  late List<ChartData> chartData;
   late ZoomPanBehavior _zoomPanBehavior;
   late TrackballBehavior _trackballBehavior;
+  late SelectionBehavior _selectionBehavior;
+  bool isZoomed = false;
 
   @override
   void initState() {
-    _zoomPanBehavior =
-        ZoomPanBehavior(enablePinching: true, enablePanning: true);
+    chartData = <ChartData>[];
+    for (Map record in storage.data) {
+      chartData
+          .add(ChartData(dateFromTimestamp(record['time']), record['value']));
+    }
+    _zoomPanBehavior = ZoomPanBehavior(
+        enablePinching: true,
+        enablePanning: true,
+        enableMouseWheelZooming: true);
     _trackballBehavior = TrackballBehavior(
         enable: true,
         activationMode: ActivationMode.singleTap,
         tooltipDisplayMode: TrackballDisplayMode.nearestPoint,
         tooltipSettings: InteractiveTooltip(format: 'point.x: point.y'),
         hideDelay: 2000);
+    _selectionBehavior = SelectionBehavior(enable: true);
+    channel.stream.listen((event) {
+      setState(() {
+        var data = jsonDecode(event as String);
+        if (data['name'] == storage.currentTickerName) {
+          storage.addData(data);
+          chartData
+              .add(ChartData(dateFromTimestamp(data['time']), data['value']));
+        }
+      });
+    });
     super.initState();
   }
 
@@ -72,31 +89,27 @@ class _ChartScreenState extends State<ChartScreen> {
   }
 
   Widget buildGraph() {
-    List<ChartData> chartData = [];
-    for (Map record in storage.data) {
-      chartData
-          .add(ChartData(dateFromTimestamp(record['time']), record['value']));
-    }
     return SfCartesianChart(
       primaryXAxis: DateTimeAxis(
         intervalType: DateTimeIntervalType.seconds,
-        visibleMinimum:
-            DateTime.now().toUtc().subtract(const Duration(minutes: 5)),
+        visibleMaximum: isZoomed ? null : DateTime.now().toUtc(),
+        visibleMinimum: isZoomed
+            ? null
+            : DateTime.now().toUtc().subtract(const Duration(minutes: 5)),
       ),
       series: <ChartSeries<ChartData, DateTime>>[
         LineSeries<ChartData, DateTime>(
             dataSource: chartData,
             xValueMapper: (ChartData val, _) => val.x,
             yValueMapper: (ChartData val, _) => val.y,
-            selectionBehavior: SelectionBehavior(
-                enable: true,
-                selectedColor: Colors.red,
-                selectedBorderWidth: 5,
-                unselectedBorderWidth: 5),
+            selectionBehavior: _selectionBehavior,
             width: 5)
       ],
       zoomPanBehavior: _zoomPanBehavior,
       trackballBehavior: _trackballBehavior,
+      onZooming: (ZoomPanArgs args) {
+        isZoomed = (args.currentZoomFactor != 1);
+      },
     );
   }
 
@@ -110,20 +123,7 @@ class _ChartScreenState extends State<ChartScreen> {
             child: Column(
           children: [
             buildChooseTickerButton(),
-            Expanded(
-              child: StreamBuilder(
-                stream: channel.stream,
-                builder: (context, snapshot) {
-                  if (snapshot.data != null) {
-                    var data = jsonDecode(snapshot.data as String);
-                    if(data['name'] == storage.currentTickerName) {
-                      storage.addData(data);
-                    }
-                  }
-                  return buildGraph();
-                },
-              ),
-            ),
+            Expanded(child: buildGraph()),
           ],
           mainAxisSize: MainAxisSize.max,
         )));
