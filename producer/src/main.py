@@ -16,7 +16,7 @@ def generate_movement():
 
 @lru_cache
 def get_resource_names():
-    return {f"ticker_{i:02d}" for i in range(3)}
+    return {f"ticker_{i:02d}" for i in range(100)}
 
 
 def start_values():

@@ -3,3 +3,4 @@ postgres/postgres_data*
 *__pycache__
 .mypy_cache*
 .vscode*
+# *.env
