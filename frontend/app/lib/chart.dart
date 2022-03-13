@@ -42,9 +42,10 @@ class _ChartScreenState extends State<ChartScreen> {
           .add(ChartData(dateFromTimestamp(record['time']), record['value']));
     }
     _zoomPanBehavior = ZoomPanBehavior(
-        enablePinching: true,
-        enablePanning: true,
-        enableMouseWheelZooming: true);
+        // enablePinching: true,
+        // enablePanning: true,
+        // enableMouseWheelZooming: true
+      );
     _trackballBehavior = TrackballBehavior(
         enable: true,
         activationMode: ActivationMode.singleTap,
@@ -91,11 +92,11 @@ class _ChartScreenState extends State<ChartScreen> {
   Widget buildGraph() {
     return SfCartesianChart(
       primaryXAxis: DateTimeAxis(
-        intervalType: DateTimeIntervalType.seconds,
-        visibleMaximum: isZoomed ? null : DateTime.now().toUtc(),
-        visibleMinimum: isZoomed
-            ? null
-            : DateTime.now().toUtc().subtract(const Duration(minutes: 5)),
+        // intervalType: DateTimeIntervalType.seconds,
+        // visibleMaximum: isZoomed ? null : DateTime.now().toUtc(),
+        // visibleMinimum: isZoomed
+        //     ? null
+        //     : DateTime.now().toUtc().subtract(const Duration(minutes: 5)),
       ),
       series: <ChartSeries<ChartData, DateTime>>[
         LineSeries<ChartData, DateTime>(
